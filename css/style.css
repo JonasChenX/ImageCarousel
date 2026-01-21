@@ -1,0 +1,287 @@
+:root {
+    --bg-color: #1a1a1a;
+    --text-color: #ffffff;
+    --primary-color: #3498db;
+    --panel-bg: rgba(0, 0, 0, 0.8);
+    --thumb-bg: rgba(0, 0, 0, 0.5);
+    --hover-color: #2980b9;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    overflow: hidden; /* Prevent scrollbars during full image view */
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+/* Initial Screen */
+#welcome-screen {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    text-align: center;
+}
+
+#welcome-screen h1 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+}
+
+.btn-large {
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.btn-large:hover {
+    background-color: var(--hover-color);
+}
+
+/* Main App Container */
+#app-container {
+    display: none; /* Hidden by default until folder loaded */
+    flex-direction: column;
+    height: 100vh;
+}
+
+/* Fullscreen Mode Updates */
+#app-container.fullscreen-mode #control-panel, 
+#app-container.fullscreen-mode .nav-zone {
+    opacity: 0; /* Hide by default */
+    transition: opacity 0.3s;
+}
+
+/* Show controls only on hover at the bottom/edges */
+#app-container.fullscreen-mode:hover #control-panel {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    opacity: 1;
+}
+
+#app-container.fullscreen-mode:hover .nav-zone {
+    /* Keep nav zones invisible visually but clickable, or show them if desired. 
+       Let's keep them invisible but clickable for clean look */
+    opacity: 0; 
+}
+
+/* If user hovers specifically over nav zones, maybe give a hint? */
+#app-container.fullscreen-mode .nav-zone:hover {
+    opacity: 0.1; /* Very subtle hint */
+}
+
+#image-viewer {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+#main-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain; /* Default mode */
+}
+
+/* Navigation Overlays */
+.nav-zone {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 10%;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+    cursor: pointer;
+    font-size: 3rem;
+    background: rgba(0,0,0,0.1);
+}
+
+.nav-zone:hover {
+    opacity: 1;
+}
+
+#left-zone { left: 0; }
+#right-zone { right: 0; }
+
+/* Control Panel */
+#control-panel {
+    background-color: var(--panel-bg);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 20;
+}
+
+.top-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.control-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+button.icon-btn {
+    background: transparent;
+    border: 1px solid #555;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button.icon-btn:hover {
+    background: #333;
+}
+
+button.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+select {
+    padding: 5px;
+    background: #333;
+    color: white;
+    border: 1px solid #555;
+    border-radius: 4px;
+}
+
+/* Progress Info */
+#progress-info {
+    font-size: 0.9rem;
+    color: #ccc;
+    min-width: 100px;
+    text-align: right;
+}
+
+/* Thumbnail Strip */
+#thumbnail-strip {
+    height: 80px;
+    display: flex;
+    overflow-x: auto;
+    background-color: var(--thumb-bg);
+    padding: 5px;
+    gap: 5px;
+}
+
+/* Custom Scrollbar for thumbnails */
+#thumbnail-strip::-webkit-scrollbar {
+    height: 8px;
+}
+#thumbnail-strip::-webkit-scrollbar-track {
+    background: #333;
+}
+#thumbnail-strip::-webkit-scrollbar-thumb {
+    background: #666;
+    border-radius: 4px;
+}
+
+.thumb-item {
+    height: 100%;
+    min-width: 60px;
+    opacity: 0.6;
+    cursor: pointer;
+    border: 2px solid transparent;
+    object-fit: cover;
+}
+
+.thumb-item:hover {
+    opacity: 1;
+}
+
+.thumb-item.active {
+    opacity: 1;
+    border-color: var(--primary-color);
+}
+
+/* Status/Error Messages */
+#message-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.8);
+    padding: 20px;
+    border-radius: 8px;
+    display: none;
+    z-index: 100;
+}
+
+/* Panel Toggle Button */
+#btn-toggle-panel {
+    position: absolute;
+    bottom: 140px; /* Approx height of panel + padding */
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    z-index: 50;
+    opacity: 0.7;
+    transition: all 0.3s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+#btn-toggle-panel:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* Collapsed State */
+#app-container.panel-collapsed #control-panel {
+    max-height: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+#app-container.panel-collapsed #btn-toggle-panel {
+    bottom: 20px;
+    transform: rotate(180deg);
+}
+
+#app-container.panel-collapsed #btn-toggle-panel:hover {
+    transform: rotate(180deg) scale(1.1);
+}
+
+#control-panel {
+    background-color: var(--panel-bg);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 20;
+    /* Transition for smooth collapse */
+    transition: max-height 0.3s, padding 0.3s;
+    max-height: 200px; /* Limit height for transition */
+}

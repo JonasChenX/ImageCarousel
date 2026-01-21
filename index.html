@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ImageCarousel - 本地漫畫輪播器</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Initial Welcome / Setup Screen -->
+    <div id="welcome-screen">
+        <h1>ImageCarousel</h1>
+        <p>請選擇您的圖片資料夾以開始</p>
+        <button id="btn-open-dir" class="btn-large">載入資料夾</button>
+        <p style="margin-top: 2rem; color: #888; font-size: 0.9em;">
+            注意: 瀏覽器將要求您授予檢視檔案的權限。<br>
+            您的資料僅會在本地端處理。
+        </p>
+    </div>
+
+    <!-- Main Application View -->
+    <div id="app-container">
+        
+        <!-- Main Image Area -->
+        <div id="image-viewer">
+            <div id="left-zone" class="nav-zone">‹</div>
+            <img id="main-image" src="" alt="Image Display">
+            <div id="right-zone" class="nav-zone">›</div>
+            
+            <div id="message-overlay"></div>
+        </div>
+
+        <!-- Panel Toggle Button -->
+        <button id="btn-toggle-panel" title="切換介面顯示">▼</button>
+
+        <!-- Controls -->
+        <div id="control-panel">
+            <div class="top-controls">
+                <div class="control-group">
+                    <button id="btn-prev" class="icon-btn">⏮</button>
+                    <button id="btn-play" class="icon-btn">Play</button>
+                    <button id="btn-next" class="icon-btn">⏭</button>
+                </div>
+
+                <div class="control-group">
+                   <span id="progress-info">0 / 0</span>
+                   <select id="lib-select">
+                       <option value="">-- 圖庫 --</option>
+                   </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="speed-select">速度(秒):</label>
+                    <select id="speed-select">
+                        <!-- Options will be populated by JS -->
+                    </select>
+                    <button id="btn-fullscreen" class="icon-btn">Toggle Fullscreen</button>
+                    <button id="btn-fit-mode" class="icon-btn">⛶ Fit</button>
+                </div>
+            </div>
+
+            <!-- Thumbnails -->
+            <div id="thumbnail-strip">
+                <!-- Javascript will populate this -->
+            </div>
+        </div>
+
+    </div>
+
+    <script src="js/constants.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/dom.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/view.js"></script>
+    <script src="js/fs.js"></script>
+    <script src="js/controller.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
