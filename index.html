@@ -27,16 +27,18 @@
             <div id="left-zone" class="nav-zone">‹</div>
             <img id="main-image" src="" alt="Image Display">
             <div id="right-zone" class="nav-zone">›</div>
-            
             <div id="message-overlay"></div>
         </div>
 
-        <!-- Panel Toggle Button -->
-        <button id="btn-toggle-panel" title="切換介面顯示">▼</button>
+        <!-- Trigger zone for fullscreen hover -->
+        <div id="bottom-hover-zone"></div>
 
         <!-- Controls -->
         <div id="control-panel">
-            <div class="top-controls">
+            <button id="btn-toggle-panel" title="切換介面顯示">▼</button>
+            
+            <div id="panel-content">
+                <div class="top-controls">
                 <div class="control-group">
                     <button id="btn-prev" class="icon-btn">⏮</button>
                     <button id="btn-play" class="icon-btn">Play</button>
@@ -64,6 +66,7 @@
             <div id="thumbnail-strip">
                 <!-- Javascript will populate this -->
             </div>
+            </div> <!-- End panel-content -->
         </div>
 
     </div>

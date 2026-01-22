@@ -56,31 +56,10 @@ body {
     height: 100vh;
 }
 
-/* Fullscreen Mode Updates */
-#app-container.fullscreen-mode #control-panel, 
-#app-container.fullscreen-mode .nav-zone {
-    opacity: 0; /* Hide by default */
-    transition: opacity 0.3s;
-}
-
-/* Show controls only on hover at the bottom/edges */
-#app-container.fullscreen-mode:hover #control-panel {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    opacity: 1;
-}
-
-#app-container.fullscreen-mode:hover .nav-zone {
-    /* Keep nav zones invisible visually but clickable, or show them if desired. 
-       Let's keep them invisible but clickable for clean look */
-    opacity: 0; 
-}
-
-/* If user hovers specifically over nav zones, maybe give a hint? */
+/* Fullscreen Mode Updates - Cleaned up */
+/* Nav zones subtle hint in fullscreen */
 #app-container.fullscreen-mode .nav-zone:hover {
-    opacity: 0.1; /* Very subtle hint */
+    opacity: 0.1;
 }
 
 #image-viewer {
@@ -233,45 +212,44 @@ select {
 
 /* Panel Toggle Button */
 #btn-toggle-panel {
-    position: absolute;
-    bottom: 140px; /* Approx height of panel + padding */
-    right: 20px;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: none;
+    align-self: flex-end; /* Align to right if flex column */
     background-color: var(--primary-color);
     color: white;
-    font-size: 1.2rem;
+    border: none;
+    border-radius: 4px 4px 0 0; /* Tab shape? */
+    padding: 5px 15px;
     cursor: pointer;
-    z-index: 50;
-    opacity: 0.7;
-    transition: all 0.3s;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 30px;
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+    z-index: 51;
+    position: absolute;
+    right: 20px;
+    top: -30px; /* Poke out */
+    height: 30px;
 }
 
 #btn-toggle-panel:hover {
-    opacity: 1;
-    transform: scale(1.1);
+    background-color: var(--hover-color);
 }
 
 /* Collapsed State */
-#app-container.panel-collapsed #control-panel {
-    max-height: 0;
-    padding: 0;
-    overflow: hidden;
+#app-container.panel-collapsed #panel-content {
+    display: none;
 }
 
 #app-container.panel-collapsed #btn-toggle-panel {
-    bottom: 20px;
     transform: rotate(180deg);
 }
-
-#app-container.panel-collapsed #btn-toggle-panel:hover {
-    transform: rotate(180deg) scale(1.1);
+/* When collapsed, the panel bg should be gone mostly? */
+#app-container.panel-collapsed #control-panel {
+    background-color: transparent;
+    pointer-events: none;
+    height: 0;
+    padding: 0;
+}
+#app-container.panel-collapsed #btn-toggle-panel {
+    pointer-events: auto;
+    top: -40px; /* Adjust position when collapsed if needed */
 }
 
 #control-panel {
@@ -279,9 +257,45 @@ select {
     padding: 10px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
     z-index: 20;
-    /* Transition for smooth collapse */
-    transition: max-height 0.3s, padding 0.3s;
-    max-height: 200px; /* Limit height for transition */
+    transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.3s;
+    position: relative; /* Context for button */
+}
+
+#panel-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Fullscreen Logic */
+#bottom-hover-zone {
+    position: fixed; /* Ensures it stays at bottom of viewport */
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 50px; /* Trigger height */
+    z-index: 100; /* High z-index to catch mouse over everything */
+    display: none;
+}
+
+.fullscreen-mode #bottom-hover-zone {
+    display: block;
+}
+
+/* In fullscreen, hide panel by default & Fix position overlay */
+.fullscreen-mode #control-panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    transform: translateY(100%); /* Slide down out of view */
+    box-sizing: border-box; 
+    z-index: 101; /* Above hover zone so we can interact with controls */
+}
+
+/* Show panel when hovering trigger OR panel itself */
+.fullscreen-mode #bottom-hover-zone:hover ~ #control-panel,
+.fullscreen-mode #control-panel:hover {
+    transform: translateY(0);
 }
