@@ -225,3 +225,19 @@ function applyDisplayMode(mode) {
 function togglePanel() {
     els.appContainer.classList.toggle('panel-collapsed');
 }
+
+/**
+ * 應用縮圖列表的顯示/隱藏狀態
+ * @param {boolean} visible 
+ */
+function applyThumbVisibility(visible) {
+    if(!els.thumbStrip || !els.btnToggleThumbs) return;
+    
+    if (visible) {
+        els.thumbStrip.style.display = 'flex';
+        els.btnToggleThumbs.textContent = '不顯示縮圖';
+    } else {
+        els.thumbStrip.style.display = 'none';
+        els.btnToggleThumbs.textContent = '顯示縮圖';
+    }
+}

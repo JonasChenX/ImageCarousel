@@ -4,6 +4,7 @@ const state = {
         autoPlayInterval: 3,
         autoPlayIntervalOptions: [1, 3, 5, 10],
         displayMode: 'fit', // fit, fill, original
+        showThumbnails: true
     },
     rootHandle: null,
     currentLibraryName: '',

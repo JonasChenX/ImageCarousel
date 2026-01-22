@@ -24,6 +24,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (els.fitModeBtn) els.fitModeBtn.addEventListener('click', toggleFitMode);
     if (els.buttonTogglePanel) els.buttonTogglePanel.addEventListener('click', togglePanel);
     if (els.btnFullscreen) els.btnFullscreen.addEventListener('click', toggleFullscreen);
+    if (els.btnToggleThumbs) els.btnToggleThumbs.addEventListener('click', toggleThumbs);
+
+    // Initial UI State
+    if (state.settings.showThumbnails !== undefined) {
+        applyThumbVisibility(state.settings.showThumbnails);
+    }
 
     // Keyboard
     document.addEventListener('keydown', handleKeydown);

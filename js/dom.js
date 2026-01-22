@@ -15,6 +15,7 @@ const els = {
     buttonTogglePanel: null,
     btnFullscreen: null,
     fitModeBtn: null,
+    btnToggleThumbs: null,
     leftZone: null,
     rightZone: null
 };
@@ -38,6 +39,7 @@ function initDOM() {
     els.buttonTogglePanel = document.getElementById('btn-toggle-panel');
     els.btnFullscreen = document.getElementById('btn-fullscreen');
     els.fitModeBtn = document.getElementById('btn-fit-mode');
+    els.btnToggleThumbs = document.getElementById('btn-toggle-thumbs');
     
     // Navigation zones (might not exist if HTML structure changes, but assumed present)
     els.leftZone = document.getElementById('left-zone');

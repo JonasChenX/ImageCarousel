@@ -111,3 +111,12 @@ document.addEventListener('fullscreenchange', () => {
         els.appContainer.classList.remove('fullscreen-mode');
     }
 });
+
+/**
+ * 切換縮圖顯示狀態
+ */
+function toggleThumbs() {
+    state.settings.showThumbnails = !state.settings.showThumbnails;
+    applyThumbVisibility(state.settings.showThumbnails);
+    saveSettingsLocal();
+}
