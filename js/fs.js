@@ -1,8 +1,10 @@
-// File System Access Logic
+/**
+ * 檔案系統存取
+ * 使用 File System Access API 讀取本地資料夾與圖片檔案
+ */
 
 /**
  * 處理「開啟資料夾」按鈕點擊事件
- * 呼叫瀏覽器 API 請求資料夾讀取權限
  */
 async function handleOpenDirectory() {
     try {
@@ -14,45 +16,31 @@ async function handleOpenDirectory() {
         await processDirectoryHandle(handle);
 
     } catch (err) {
-        // Ignore if user cancelled
         if (err.name === 'AbortError') return;
         console.error('Error accessing folder:', err);
     }
 }
 
 /**
- * 處理取得的資料夾 Handle
- * 進行初始化掃描、建立圖庫列表、並嘗試載入第一個圖庫
- * @param {FileSystemDirectoryHandle} handle 
+ * 處理資料夾並掃描圖庫
+ * @param {FileSystemDirectoryHandle} handle
  */
 async function processDirectoryHandle(handle) {
     state.rootHandle = handle;
     await scanForLibraries(handle);
     
     if (state.libraries.length > 0) {
-        // Populate Library Select
-        updateLiBrarySelect();
-
-        // Check first library for images (silent mode)
-        await loadLibrary(state.libraries[0].name, true);
-
-        if (state.imageList.length > 0) {
-            // Switch to App View only if images exist
-            els.welcomeScreen.style.display = 'none';
-            els.appContainer.style.display = 'flex';
-        } else {
-            alert('此資料夾 (或第一個子資料夾) 內沒有找到圖片，請重新選擇。');
-        }
-/**
- * 掃描根目錄下的第一層子資料夾
- * 將其視為不同的「圖庫 (Libraries)」
- * @param {FileSystemDirectoryHandle} rootHandle 
- */
+        showView('gallery');
+        renderGallery();
     } else {
         alert('此資料夾內找不到子資料夾，請確認您的目錄結構。');
     }
 }
 
+/**
+ * 掃描根目錄下的子資料夾作為圖庫
+ * @param {FileSystemDirectoryHandle} rootHandle
+ */
 async function scanForLibraries(rootHandle) {
     state.libraries = [];
     
@@ -61,17 +49,17 @@ async function scanForLibraries(rootHandle) {
             state.libraries.push({
                 name: entry.name,
                 handle: entry
-/**
- * 載入特定的圖庫 (子資料夾)
- * 讀取該資料夾下的所有圖片檔案，並進行排序
- * @param {string} libName - 圖庫名稱 (資料夾名)
- * @param {boolean} silent - 若為 true，則找不到圖片時不跳出 alert (用於初始化檢查)
- */
             });
         }
     }
+    state.libraries.sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true, sensitivity: 'base'}));
 }
 
+/**
+ * 載入特定的圖庫並讀取圖片
+ * @param {string} libName - 圖庫名稱
+ * @param {boolean} silent - 若為 true 則不顯示錯誤訊息
+ */
 async function loadLibrary(libName, silent = false) {
     stopAutoPlay();
     state.currentLibraryName = libName;
@@ -82,7 +70,6 @@ async function loadLibrary(libName, silent = false) {
     state.imageList = [];
     state.currentIndex = 0;
 
-    // Scan for images in this folder
     for await (const entry of state.currentLibraryHandle.values()) {
         if (entry.kind === 'file') {
             const ext = entry.name.split('.').pop().toLowerCase();
@@ -92,14 +79,42 @@ async function loadLibrary(libName, silent = false) {
         }
     }
 
-    // Sort by name
     state.imageList.sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true, sensitivity: 'base'}));
 
     if (state.imageList.length > 0) {
         renderImage();
         renderThumbnails();
+        showView('carousel');
     } else {
         if (!silent) alert('此圖庫中沒有圖片。');
         els.mainImage.src = '';
     }
+}
+
+/**
+ * 取得圖庫的第一張圖片作為封面
+ * @param {FileSystemDirectoryHandle} libHandle
+ * @returns {Promise<Blob|null>}
+ */
+async function getLibraryCover(libHandle) {
+    const images = [];
+    
+    for await (const entry of libHandle.values()) {
+        if (entry.kind === 'file') {
+            const ext = entry.name.split('.').pop().toLowerCase();
+            if (IMAGE_EXTENSIONS.includes(ext)) {
+                images.push(entry);
+            }
+        }
+    }
+    
+    if (images.length > 0) {
+        images.sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true, sensitivity: 'base'}));
+        try {
+            const file = await images[0].getFile();
+            return file;
+        } catch(e) { console.warn('Read cover failed', e); }
+    }
+    
+    return null;
 }

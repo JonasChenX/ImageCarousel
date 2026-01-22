@@ -1,9 +1,12 @@
-// IndexedDB & Local Storage
+/**
+ * 資料持久化管理
+ * 負責 IndexedDB 與 LocalStorage 的讀寫操作
+ * 儲存資料夾權限、使用者設定、瀏覽紀錄等
+ */
 
 /**
  * 開啟 IndexedDB 資料庫
- * 用於儲存資料夾的存取權杖 (FileSystemHandle)
- * @returns {Promise<IDBDatabase>} 資料庫實例
+ * @returns {Promise<IDBDatabase>}
  */
 function openDB() {
     return new Promise((resolve, reject) => {
@@ -18,20 +21,20 @@ function openDB() {
 
 /**
  * 儲存資料夾 Handle 到 IndexedDB
- * @param {FileSystemDirectoryHandle} handle - 資料夾 Handle
+ * @param {FileSystemDirectoryHandle} handle
  */
 async function saveDirectoryHandle(handle) {
     try {
         const db = await openDB();
         const tx = db.transaction(STORE_NAME, 'readwrite');
-/**
- * 從 IndexedDB 取得上次儲存的資料夾 Handle
- * @returns {Promise<FileSystemDirectoryHandle|null>}
- */
         tx.objectStore(STORE_NAME).put(handle, 'root');
     } catch (e) { console.warn('Failed to save handle', e); }
 }
 
+/**
+ * 從 IndexedDB 取得上次儲存的資料夾 Handle
+ * @returns {Promise<FileSystemDirectoryHandle|null>}
+ */
 async function getDirectoryHandle() {
     try {
         const db = await openDB();
@@ -40,50 +43,44 @@ async function getDirectoryHandle() {
             const req = tx.objectStore(STORE_NAME).get('root');
             req.onsuccess = () => resolve(req.result);
             req.onerror = () => resolve(null);
-/**
- * 從 LocalStorage 讀取使用者設定 (速度、顯示模式)
- * 並覆蓋到全域 state.settings
- */
         });
     } catch(e) { return null; }
 }
 
+/**
+ * 從 LocalStorage 讀取使用者設定
+ */
 function loadSettingsLocal() {
     const saved = localStorage.getItem('imageCarouselSettings');
     if(saved) {
         try {
             Object.assign(state.settings, JSON.parse(saved));
-            // Update UI inputs if DOM is ready (though this is typically called before)
         } catch(e) {
             console.warn('Failed to parse settings');
+        }
+    }
+}
+
 /**
  * 將目前的使用者設定存入 LocalStorage
  */
-        }
-    }
-/**
- * 檢查是否有上次瀏覽紀錄
- * 若有，則在歡迎畫面動態產生「快速載入」按鈕
- */
-}
-
 function saveSettingsLocal() {
     localStorage.setItem('imageCarouselSettings', JSON.stringify(state.settings));
 }
 
-// Check saved session logic
+/**
+ * 檢查上次瀏覽紀錄並建立快速載入按鈕
+ */
 async function checkSavedSession() {
     const handle = await getDirectoryHandle();
     if (handle) {
-        // Create Quick Load Button
         const btnQuick = document.createElement('button');
         btnQuick.className = 'btn-large';
-        btnQuick.style.backgroundColor = '#27ae60'; // Green
+        btnQuick.style.backgroundColor = '#27ae60';
         btnQuick.style.marginBottom = '1rem';
         btnQuick.innerHTML = `快速載入上次的資料夾 <br><span style="font-size:0.8em; opacity:0.8">(${handle.name})</span>`;
         
         btnQuick.onclick = async () => {
-             // Verify permission
              const opts = { mode: 'read' };
              if ((await handle.queryPermission(opts)) === 'granted') {
                  processDirectoryHandle(handle);
@@ -99,7 +96,6 @@ async function checkSavedSession() {
         const orgBtn = els.btnOpenDir;
         container.insertBefore(btnQuick, orgBtn);
         
-        // Add some visual separation
         const sep = document.createElement('p');
         sep.textContent = '- 或 -';
         sep.style.margin = '10px 0';

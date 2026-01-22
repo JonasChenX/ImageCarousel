@@ -1,21 +1,20 @@
-// View Logic (Updating DOM)
+/**
+ * 視圖渲染邏輯
+ * 負責所有 UI 的渲染與更新，包含圖片顯示、縮圖列表、圖庫網格等
+ */
 
 /**
  * 渲染主要圖片
- * 讀取目前索引 (currentIndex) 的檔案，建立 Blob URL 並顯示
- * 自動釋放舊的 Blob URL 以釋放記憶體
  */
 async function renderImage() {
     if (state.imageList.length === 0) return;
 
-    // Ensure display mode is applied 
     applyDisplayMode(state.settings.displayMode);
 
     const fileHandle = state.imageList[state.currentIndex];
     const file = await fileHandle.getFile();
     const url = URL.createObjectURL(file);
 
-    // Clean up old url object to avoid memory leaks
     if (state.currentImageBlobUrl) {
        URL.revokeObjectURL(state.currentImageBlobUrl);
     }
@@ -28,19 +27,21 @@ async function renderImage() {
 
 /**
  * 更新 UI 狀態
- * 包含：頁碼顯示、導航箭頭可見性、縮圖高亮、下拉選單同步
  */
 function updateUI() {
     els.progressInfo.textContent = `${state.currentIndex + 1} / ${state.imageList.length}`;
-    els.libSelect.value = state.currentLibraryName;
+    
+    if (els.progressFill && state.imageList.length > 0) {
+        const percentage = ((state.currentIndex + 1) / state.imageList.length) * 100;
+        els.progressFill.style.width = `${percentage}%`;
+    }
     
     const isLast = state.currentIndex === state.imageList.length - 1;
     const isFirst = state.currentIndex === 0;
     
-    // Hide right zone if last image and loop mode is OFF
     if (isLast && !state.settings.loopMode) {
         if(els.rightZone) els.rightZone.style.display = 'none';
-        els.btnNext.disabled = true; // Optional: disable button
+        els.btnNext.disabled = true;
         els.btnNext.style.opacity = '0.3';
     } else {
         if(els.rightZone) els.rightZone.style.display = 'flex';
@@ -48,7 +49,6 @@ function updateUI() {
         els.btnNext.style.opacity = '1';
     }
     
-    // Hide left zone if first image and loop mode is OFF
     if (isFirst && !state.settings.loopMode) {
         if(els.leftZone) els.leftZone.style.display = 'none';
         els.btnPrev.disabled = true;
@@ -59,35 +59,20 @@ function updateUI() {
         els.btnPrev.style.opacity = '1';
     }
 
-    // Highlight thumbnail
     const thumbs = document.querySelectorAll('.thumb-item');
     thumbs.forEach((t, idx) => {
         if(idx === state.currentIndex) t.classList.add('active');
         else t.classList.remove('active');
         
-        // Scroll thumbnail into view
         if(idx === state.currentIndex) {
             t.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-/**
- * 更新圖庫下拉選單的選項
- */
         }
     });
 }
 
-function updateLiBrarySelect() {
-    els.libSelect.innerHTML = '';
-    state.libraries.forEach(lib => {
-        const option = document.createElement('option');
-        option.value = lib.name;
-        option.textContent = lib.name;
-        els.libSelect.appendChild(option);
 /**
- * 更新播放速度的選擇清單
+ * 更新播放速度選項
  */
-    });
-}
-
 function updateSpeedOptions() {
     els.speedSelect.innerHTML = '';
     state.settings.autoPlayIntervalOptions.forEach(opt => {
@@ -96,14 +81,12 @@ function updateSpeedOptions() {
         el.textContent = opt + 's';
         if (opt === state.settings.autoPlayInterval) el.selected = true;
         els.speedSelect.appendChild(el);
-/**
- * 渲染縮圖列表
- * 建立 img 元素佔位符，並使用 IntersectionObserver 實作懶加載 (Lazy Loading)
- * 只有當縮圖捲動到視窗內時，才會真正進行解碼與讀取
- */
     });
 }
 
+/**
+ * 渲染縮圖列表
+ */
 async function renderThumbnails() {
     els.thumbStrip.innerHTML = '';
     
@@ -132,14 +115,7 @@ async function renderThumbnails() {
         img.onclick = () => {
             state.currentIndex = i;
             renderImage();
-/**
- * 讀取並產生單張縮圖
- * 為了效能，優先使用 createImageBitmap 產生低解析度版本
- * 避免同時解碼大量高解析度圖片導致 UI 卡頓
- * @param {HTMLImageElement} imgElement - 目標圖片元素
- * @param {number} index - 圖片在 imageList 的索引
- */
-            stopAutoPlay(); 
+            stopAutoPlay();
         };
         els.thumbStrip.appendChild(img);
         
@@ -147,6 +123,11 @@ async function renderThumbnails() {
     }
 }
 
+/**
+ * 讀取並產生單張縮圖
+ * @param {HTMLImageElement} imgElement
+ * @param {number} index
+ */
 async function loadThumbnailImage(imgElement, index) {
     if (!state.imageList[index]) return;
     try {
@@ -169,14 +150,10 @@ async function loadThumbnailImage(imgElement, index) {
                 canvas.toBlob((blob) => {
                     const thumbUrl = URL.createObjectURL(blob);
                     imgElement.src = thumbUrl;
-                    bitmap.close(); 
+                    bitmap.close();
                 }, 'image/jpeg', 0.7);
                 
                 return;
-/**
- * 套用圖片顯示模式
- * @param {string} mode - 'fit' (完整顯示), 'fill' (填滿裁切), 'original' (原始大小)
- */
             } catch (err) {
                 console.warn('Thumbnail generation failed, falling back to full load', err);
             }
@@ -189,6 +166,10 @@ async function loadThumbnailImage(imgElement, index) {
     }
 }
 
+/**
+ * 套用圖片顯示模式
+ * @param {string} mode - 'fit', 'fill', 'original'
+ */
 function applyDisplayMode(mode) {
     const img = els.mainImage;
     if (!img) return;
@@ -208,27 +189,27 @@ function applyDisplayMode(mode) {
             img.style.width = '100%';
             img.style.height = '100%';
             img.style.objectFit = 'cover';
-/**
- * 切換下方控制面板的收合/展開狀態
- */
-            if(els.fitModeBtn) els.fitModeBtn.textContent = '⛶ Fill';
+            if(els.fitModeBtn) els.fitModeBtn.textContent = '⚶ Fill';
             break;
         case 'original':
-            img.style.width = 'auto'; 
+            img.style.width = 'auto';
             img.style.height = 'auto';
-            img.style.objectFit = 'none'; 
-            if(els.fitModeBtn) els.fitModeBtn.textContent = '⛶ 1:1';
+            img.style.objectFit = 'none';
+            if(els.fitModeBtn) els.fitModeBtn.textContent = '⚶ 1:1';
             break;
     }
 }
 
+/**
+ * 切換下方控制面板的收合/展開狀態
+ */
 function togglePanel() {
     els.appContainer.classList.toggle('panel-collapsed');
 }
 
 /**
- * 應用縮圖列表的顯示/隱藏狀態
- * @param {boolean} visible 
+ * 應用縮圖顯示/隱藏狀態
+ * @param {boolean} visible
  */
 function applyThumbVisibility(visible) {
     if(!els.thumbStrip || !els.btnToggleThumbs) return;
@@ -240,4 +221,81 @@ function applyThumbVisibility(visible) {
         els.thumbStrip.style.display = 'none';
         els.btnToggleThumbs.textContent = '顯示縮圖';
     }
+}
+
+/**
+ * 切換頁面視圖
+ * @param {string} viewName - 'welcome', 'gallery', 'carousel'
+ */
+function showView(viewName) {
+    if(els.welcomeScreen) els.welcomeScreen.style.display = 'none';
+    if(els.appContainer) els.appContainer.style.display = 'none';
+    if(els.galleryView) els.galleryView.style.display = 'none';
+
+    switch(viewName) {
+        case 'welcome':
+            els.welcomeScreen.style.display = 'flex';
+            break;
+        case 'gallery':
+            els.galleryView.style.display = 'block';
+            break;
+        case 'carousel':
+            els.appContainer.style.display = 'flex';
+            break;
+    }
+}
+
+/**
+ * 渲染圖庫頁面
+ */
+async function renderGallery() {
+    if(!els.galleryGrid) return;
+    els.galleryGrid.innerHTML = '';
+
+    state.libraries.forEach(async (lib) => {
+        const card = document.createElement('div');
+        card.className = 'album-card';
+        card.onclick = () => loadLibrary(lib.name);
+
+        const coverImg = document.createElement('img');
+        coverImg.className = 'album-cover';
+        coverImg.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"%3E%3C/svg%3E';
+        
+        const info = document.createElement('div');
+        info.className = 'album-info';
+        
+        const title = document.createElement('div');
+        title.className = 'album-title';
+        title.textContent = lib.name;
+        
+        info.appendChild(title);
+        card.appendChild(coverImg);
+        card.appendChild(info);
+        els.galleryGrid.appendChild(card);
+
+        const coverBlob = await getLibraryCover(lib.handle);
+        if(coverBlob) {
+             if (window.createImageBitmap) {
+                try {
+                    const bitmap = await createImageBitmap(coverBlob, { 
+                        resizeHeight: 300,
+                        resizeQuality: 'medium' 
+                    });
+                     const canvas = document.createElement('canvas');
+                    canvas.width = bitmap.width;
+                    canvas.height = bitmap.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(bitmap, 0, 0);
+                    canvas.toBlob(blob => {
+                        coverImg.src = URL.createObjectURL(blob);
+                        bitmap.close();
+                    }, 'image/jpeg', 0.7);
+                } catch(e) {
+                     coverImg.src = URL.createObjectURL(coverBlob);
+                }
+             } else {
+                 coverImg.src = URL.createObjectURL(coverBlob);
+             }
+        }
+    });
 }

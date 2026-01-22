@@ -8,7 +8,7 @@
 </head>
 <body>
 
-    <!-- Initial Welcome / Setup Screen -->
+    <!-- 歡迎畫面 -->
     <div id="welcome-screen">
         <h1>ImageCarousel</h1>
         <p>請選擇您的圖片資料夾以開始</p>
@@ -19,10 +19,21 @@
         </p>
     </div>
 
-    <!-- Main Application View -->
+    <!-- 圖庫視圖（首頁） -->
+    <div id="gallery-view" style="display: none;">
+        <div id="gallery-header">
+            <h2>我的圖庫</h2>
+            <div id="gallery-controls"></div>
+        </div>
+        <div id="gallery-grid">
+            <!-- 圖庫專輯將在此渲染 -->
+        </div>
+    </div>
+
+    <!-- 主應用視圖（輪播器） -->
     <div id="app-container">
         
-        <!-- Main Image Area -->
+        <!-- 主圖片區域 -->
         <div id="image-viewer">
             <div id="left-zone" class="nav-zone">‹</div>
             <img id="main-image" src="" alt="Image Display">
@@ -30,44 +41,49 @@
             <div id="message-overlay"></div>
         </div>
 
-        <!-- Trigger zone for fullscreen hover -->
+        <!-- 全螢幕懸停觸發區 -->
         <div id="bottom-hover-zone"></div>
 
-        <!-- Controls -->
+        <!-- 進度條 -->
+        <div class="progress-bar">
+            <div class="progress-track">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <span id="progress-info">0 / 0</span>
+        </div>
+
+        <!-- 控制面板 -->
         <div id="control-panel">
             <button id="btn-toggle-panel" title="切換介面顯示">▼</button>
             
             <div id="panel-content">
                 <div class="top-controls">
-                <div class="control-group">
-                    <button id="btn-prev" class="icon-btn">⏮</button>
-                    <button id="btn-play" class="icon-btn">Play</button>
-                    <button id="btn-next" class="icon-btn">⏭</button>
+                    <div class="control-group">
+                        <button id="btn-back" class="icon-btn">↩ 返回首頁</button>
+                    </div>
+
+                    <div class="control-group">
+                        <button id="btn-prev" class="icon-btn">⏮</button>
+                        <button id="btn-play" class="icon-btn">播放</button>
+                        <button id="btn-next" class="icon-btn">⏭</button>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="speed-select">速度:</label>
+                        <select id="speed-select">
+                            <!-- 選項將由 JS 填充 -->
+                        </select>
+                        <button id="btn-fit-mode" class="icon-btn">⛶ Fit</button>
+                        <button id="btn-fullscreen" class="icon-btn">全螢幕</button>
+                        <button id="btn-toggle-thumbs" class="icon-btn">縮圖</button>
+                    </div>
                 </div>
 
-                <div class="control-group">
-                   <span id="progress-info">0 / 0</span>
-                   <select id="lib-select">
-                       <option value="">-- 圖庫 --</option>
-                   </select>
+                <!-- 縮圖列表 -->
+                <div id="thumbnail-strip">
+                    <!-- Javascript 將填充此處 -->
                 </div>
-
-                <div class="control-group">
-                    <label for="speed-select">速度(秒):</label>
-                    <select id="speed-select">
-                        <!-- Options will be populated by JS -->
-                    </select>
-                    <button id="btn-fullscreen" class="icon-btn">Toggle Fullscreen</button>
-                    <button id="btn-fit-mode" class="icon-btn">⛶ Fit</button>
-                    <button id="btn-toggle-thumbs" class="icon-btn">不顯示縮圖</button>
-                </div>
-            </div>
-
-            <!-- Thumbnails -->
-            <div id="thumbnail-strip">
-                <!-- Javascript will populate this -->
-            </div>
-            </div> <!-- End panel-content -->
+            </div> <!-- panel-content 結束 -->
         </div>
 
     </div>

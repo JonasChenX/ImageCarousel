@@ -1,8 +1,10 @@
-// Controller Logic (State Manipulation)
+/**
+ * 控制器邏輯
+ * 處理使用者互動與狀態變更，包含圖片導航、播放控制、顯示模式切換等
+ */
 
 /**
  * 導航至上一張或下一張圖片
- * 處理邊界檢查 (第一張與最後一張) 與循環播放模式 (Loop Mode) 的邏輯
  * @param {number} direction - 1 為下一張，-1 為上一張
  */
 function navigate(direction) {
@@ -34,28 +36,23 @@ function togglePlay() {
     } else {
         els.btnPlay.textContent = 'Play';
         stopAutoPlay();
-/**
- * 啟動計時器，開始自動輪播
- */
     }
 }
 
+/**
+ * 啟動計時器，開始自動輪播
+ */
 function startTimer() {
     if (state.timerId) clearInterval(state.timerId);
     state.timerId = setInterval(() => {
         navigate(1);
-/**
- * 停止自動輪播並清除計時器
- */
     }, state.settings.autoPlayInterval * 1000);
 }
 
-function stopAutoPlay() {
 /**
- * 更新自動輪播的速度 (秒數)
- * 若正在播放中，會自動重設計時器
- * @param {number|string} seconds 
+ * 停止自動輪播並清除計時器
  */
+function stopAutoPlay() {
     state.isPlaying = false;
     els.btnPlay.textContent = 'Play';
     if (state.timerId) clearInterval(state.timerId);
@@ -63,8 +60,8 @@ function stopAutoPlay() {
 }
 
 /**
- * 循環切換顯示模式
- * 順序: fit (完整顯示) -> fill (填滿) -> original (1:1 原始大小)
+ * 更新自動輪播的速度
+ * @param {number|string} seconds
  */
 function updateSpeed(seconds) {
     state.settings.autoPlayInterval = parseInt(seconds);
@@ -119,4 +116,12 @@ function toggleThumbs() {
     state.settings.showThumbnails = !state.settings.showThumbnails;
     applyThumbVisibility(state.settings.showThumbnails);
     saveSettingsLocal();
+}
+
+/**
+ * 返回圖庫首頁
+ */
+function backToGallery() {
+    stopAutoPlay();
+    showView('gallery');
 }
