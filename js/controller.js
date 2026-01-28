@@ -123,5 +123,11 @@ function toggleThumbs() {
  */
 function backToGallery() {
     stopAutoPlay();
+    
+    // 如果處於全螢幕狀態，先退出全螢幕
+    if (document.fullscreenElement) {
+        document.exitFullscreen();
+    }
+    
     showView('gallery');
 }
